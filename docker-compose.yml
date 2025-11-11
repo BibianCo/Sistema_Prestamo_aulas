@@ -1,7 +1,9 @@
 version: '3.8'
+
 services:
   mysql:
     image: mysql:8
+    container_name: mysql
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: classroombookingdb
@@ -13,35 +15,50 @@ services:
       - classroom-network
 
   classroom-service:
-    image: bibianco/classroom-service:latest
-    depends_on:
-      - mysql
+    image: bibianco/sistema_prestamos_aulas_dtic:classroom
+    container_name: classroom-service
     ports:
       - "8081:8081"
+    depends_on:
+      - mysql
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/classroombookingdb?allowPublicKeyRetrieval=true&useSSL=false
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
     networks:
       - classroom-network
 
   loan-service:
-    image: bibianco/loan-service:latest
-    depends_on:
-      - classroom-service
+    image: bibianco/sistema_prestamos_aulas_dtic:loan
+    container_name: loan-service
     ports:
       - "8082:8082"
+    depends_on:
+      - mysql
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/classroombookingdb?allowPublicKeyRetrieval=true&useSSL=false
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
     networks:
       - classroom-network
 
   reporting-service:
-    image: bibianco/reporting-service:latest
-    depends_on:
-      - loan-service
+    image: bibianco/sistema_prestamos_aulas_dtic:reporting
+    container_name: reporting-service
     ports:
       - "8083:8083"
+    depends_on:
+      - mysql
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/classroombookingdb?allowPublicKeyRetrieval=true&useSSL=false
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
     networks:
       - classroom-network
 
-networks:
-  classroom-network:
-
 volumes:
   mysql_data:
+
+networks:
+  classroom-network:
 
